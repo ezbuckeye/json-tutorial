@@ -109,15 +109,17 @@ static int validate_exp(char** json_cpy) {
 static int lept_parse_number(lept_context* c, lept_value* v) {
     char* end;
     char* json_cpy;
+    void* json_cpy_head;
     int validation_failure;
 
-    json_cpy = malloc(strlen(c->json)+1);
+    json_cpy_head = malloc(strlen(c->json)+1);
+    json_cpy = (char*)json_cpy_head;
     strcpy(json_cpy, c->json);
     validate_neg(&json_cpy);
     validation_failure = !validate_int(&json_cpy)||!validate_frac(&json_cpy)||!validate_exp(&json_cpy);
-    /* free(json_cpy); */
     if(validation_failure)  return LEPT_PARSE_INVALID_VALUE;
     if(!is_whitespace(*json_cpy) && *json_cpy!='\0')    return LEPT_PARSE_OK; 
+    free(json_cpy_head);
     v->n = strtod(c->json, &end);
     if (c->json == end)
         return LEPT_PARSE_INVALID_VALUE;
