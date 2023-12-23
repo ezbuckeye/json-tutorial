@@ -1,4 +1,7 @@
-#include "leptjson.h" 
+#include "leptjson.h"
+#include <math.h>
+#include <errno.h>
+#include <stdlib.h> 
 #include <assert.h>  /* assert() */ 
 #include <stdlib.h>  /* NULL, strtod() */ 
 #include <string.h> 
@@ -96,7 +99,6 @@ static int validate_sign(char** json_cpy) {
 static int validate_exp(char** json_cpy) {
     if(*json_cpy[0]=='e' || *json_cpy[0]=='E') {
         (*json_cpy)++;
-        if(isdigit(*json_cpy[0]) && validate_sign(json_cpy))    return 0;
         if(validate_sign(json_cpy)) {
             (*json_cpy)++;    
         }
@@ -107,10 +109,10 @@ static int validate_exp(char** json_cpy) {
 }
 
 static int lept_parse_number(lept_context* c, lept_value* v) {
-    char* end;
     char* json_cpy;
     void* json_cpy_head;
     int validation_failure;
+    
 
     json_cpy_head = malloc(strlen(c->json)+1);
     json_cpy = (char*)json_cpy_head;
@@ -119,11 +121,11 @@ static int lept_parse_number(lept_context* c, lept_value* v) {
     validation_failure = !validate_int(&json_cpy)||!validate_frac(&json_cpy)||!validate_exp(&json_cpy);
     if(validation_failure)  return LEPT_PARSE_INVALID_VALUE;
     if(!is_whitespace(*json_cpy) && *json_cpy!='\0')    return LEPT_PARSE_OK; 
+    errno = 0;
+    v->n = strtod(c->json, NULL);
+    if(errno == ERANGE && (v->n==HUGE_VAL || v->n==-HUGE_VAL))    return LEPT_PARSE_NUMBER_TOO_BIG; 
+    c->json += (json_cpy-(char*)json_cpy_head);
     free(json_cpy_head);
-    v->n = strtod(c->json, &end);
-    if (c->json == end)
-        return LEPT_PARSE_INVALID_VALUE;
-    c->json = end;
     v->type = LEPT_NUMBER;
     return LEPT_PARSE_OK;
 }
