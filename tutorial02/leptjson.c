@@ -9,9 +9,13 @@ typedef struct {
     const char* json; 
 }lept_context; 
 
+static int is_whitespace(char c) {
+    return (c == ' ' || c == '\t' || c == '\n' || c == '\r');
+}
+
 static void lept_parse_whitespace(lept_context* c) { 
     const char *p = c->json; 
-    while (*p == ' ' || *p == '\t' || *p == '\n' || *p == '\r')
+    while(is_whitespace(*p))
         p++;
     c->json = p;
 }
@@ -92,7 +96,7 @@ static int validate_sign(char** json_cpy) {
 static int validate_exp(char** json_cpy) {
     if(*json_cpy[0]=='e' || *json_cpy[0]=='E') {
         (*json_cpy)++;
-        if(*json_cpy[0]!='+' && validate_sign(json_cpy))    return 0;
+        if(isdigit(*json_cpy[0]) && validate_sign(json_cpy))    return 0;
         if(validate_sign(json_cpy)) {
             (*json_cpy)++;    
         }
@@ -105,15 +109,15 @@ static int validate_exp(char** json_cpy) {
 static int lept_parse_number(lept_context* c, lept_value* v) {
     char* end;
     char* json_cpy;
-    int validation;
+    int validation_failure;
 
-    json_cpy = c->json;
+    json_cpy = malloc(strlen(c->json)+1);
     strcpy(json_cpy, c->json);
     validate_neg(&json_cpy);
-    validation = !validate_int(&json_cpy)||!validate_frac(&json_cpy)||!validate_exp(&json_cpy);
-
-    if(!validation)  return LEPT_PARSE_INVALID_VALUE;
-
+    validation_failure = !validate_int(&json_cpy)||!validate_frac(&json_cpy)||!validate_exp(&json_cpy);
+    /* free(json_cpy); */
+    if(validation_failure)  return LEPT_PARSE_INVALID_VALUE;
+    if(!is_whitespace(*json_cpy) && *json_cpy!='\0')    return LEPT_PARSE_OK; 
     v->n = strtod(c->json, &end);
     if (c->json == end)
         return LEPT_PARSE_INVALID_VALUE;

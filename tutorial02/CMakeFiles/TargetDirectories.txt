@@ -1,0 +1,4 @@
+/home/parallels/Documents/json-tutorial/tutorial02/CMakeFiles/leptjson.dir
+/home/parallels/Documents/json-tutorial/tutorial02/CMakeFiles/leptjson_test.dir
+/home/parallels/Documents/json-tutorial/tutorial02/CMakeFiles/edit_cache.dir
+/home/parallels/Documents/json-tutorial/tutorial02/CMakeFiles/rebuild_cache.dir
