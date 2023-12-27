@@ -107,10 +107,8 @@ static void test_parse_number() {
 static void test_parse_string() {
     TEST_STRING("", "\"\"");
     TEST_STRING("Hello", "\"Hello\"");
-#if 0
     TEST_STRING("Hello\nWorld", "\"Hello\\nWorld\"");
     TEST_STRING("\" \\ / \b \f \n \r \t", "\"\\\" \\\\ \\/ \\b \\f \\n \\r \\t\"");
-#endif
 }
 
 #define TEST_ERROR(error, json)\
@@ -188,12 +186,27 @@ static void test_access_null() {
 }
 
 static void test_access_boolean() {
-    /* \TODO */
     /* Use EXPECT_TRUE() and EXPECT_FALSE() */
+    lept_value v;
+    lept_init(&v);
+    lept_set_boolean(&v, 1);
+    EXPECT_TRUE(lept_get_boolean(&v));
+    lept_set_boolean(&v, 0);
+    EXPECT_FALSE(lept_get_boolean(&v));
+    lept_free(&v);
 }
 
 static void test_access_number() {
-    /* \TODO */
+    double test_num;
+    lept_value v;
+    lept_init(&v);
+    test_num = -2.2E-123;
+    lept_set_number(&v, test_num);
+    EXPECT_EQ_DOUBLE(test_num, lept_get_number(&v));
+    test_num = 0.0;
+    lept_set_number(&v, test_num);
+    EXPECT_EQ_DOUBLE(test_num, lept_get_number(&v));
+    lept_free(&v);
 }
 
 static void test_access_string() {
