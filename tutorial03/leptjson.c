@@ -118,6 +118,10 @@ static int put_potential_escape_ch(lept_context* c, char next_ch) {
     return LEPT_PARSE_OK;
 }
 
+static int is_invalid_string_char(char ch) {
+	return !((ch>=0X20 && ch<=0X21) || (ch>=0X23 && ch <=0X5B) || (ch>=0X5D));
+}
+
 static int lept_parse_string(lept_context* c, lept_value* v) {
     size_t head = c->top, len;
     const char* p;
@@ -126,6 +130,7 @@ static int lept_parse_string(lept_context* c, lept_value* v) {
     for (;;) {
         char ch = *p++;
         switch (ch) {
+			char next_ch;
             case '\"':
                 len = c->top - head;
                 lept_set_string(v, (const char*)lept_context_pop(c, len), len);
@@ -135,16 +140,13 @@ static int lept_parse_string(lept_context* c, lept_value* v) {
                 c->top = head;
                 return LEPT_PARSE_MISS_QUOTATION_MARK;
             case '\\':
-                char next_ch = *(p++);
-                if(next_ch!='\0') {
-                    int ret;
-                    ret = put_potential_escape_ch(c, next_ch);
-                    if(ret != LEPT_PARSE_OK)    return ret;
-                }else{
-                    PUTC(c, ch);
-                }
-                break;
+                next_ch = *(p++);
+				int ret;
+				ret = put_potential_escape_ch(c, next_ch);
+				if(ret != LEPT_PARSE_OK)    return ret;
+				break;
             default:
+				if(is_invalid_string_char(ch))	return LEPT_PARSE_INVALID_STRING_CHAR;
                 PUTC(c, ch);
         }
     }
@@ -196,7 +198,7 @@ lept_type lept_get_type(const lept_value* v) {
 
 int lept_get_boolean(const lept_value* v) {
     assert(v != NULL && (v->type == LEPT_TRUE || v->type == LEPT_FALSE));
-    return v->type==LEPT_TRUE ? 1 : 0;
+    return v->type==LEPT_TRUE;
 }
 
 void lept_set_boolean(lept_value* v, int b) {
