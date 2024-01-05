@@ -103,8 +103,7 @@ static const char* lept_parse_hex4(const char* p, unsigned* u) {
 		}else if(ISHALPH(*p)){
 			*u = (*u<<4) + (*p-'A') + 10;
 		}else{
-			p = NULL;
-			break;
+			return NULL;
 		}
 	}
     return p;
@@ -166,7 +165,7 @@ static int lept_parse_string(lept_context* c, lept_value* v) {
 							if(*p++ != '\\' || *p++ != 'u')
 								STRING_ERROR(LEPT_PARSE_INVALID_UNICODE_SURROGATE);
 							if(!(p = lept_parse_hex4(p, &next_u)))
-								STRING_ERROR(LEPT_PARSE_INVALID_UNICODE_SURROGATE);
+								STRING_ERROR(LEPT_PARSE_INVALID_UNICODE_HEX);
 							if(next_u>=0XDC00 && next_u<=0XDFFF){
 								uu = 0X10000 + (u - 0XD800) * 0X400 + (next_u - 0XDC00);
 								lept_encode_utf8(c, uu);
