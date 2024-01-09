@@ -269,6 +269,7 @@ static int lept_parse_object(lept_context* c, lept_value* v) {
 		/* parse colon */
 		lept_parse_whitespace(c);
 		if (*c->json++ != ':') {
+			free(m.k);
 			ret = LEPT_PARSE_MISS_COLON;
 			break;
 		}
@@ -309,6 +310,10 @@ static int lept_parse_object(lept_context* c, lept_value* v) {
     return ret;
 }
 
+/* 
+when parsing array/string/object, the program will utilize the c->stack as a cached result
+if encountered errors during pasrsing, the invariant that the c-top will be set back the its original will hold
+*/
 static int lept_parse_value(lept_context* c, lept_value* v) {
     switch (*c->json) {
         case 't':  return lept_parse_literal(c, v, "true", LEPT_TRUE);
