@@ -347,7 +347,68 @@ int lept_parse(lept_value* v, const char* json) {
 }
 
 static void lept_stringify_string(lept_context* c, const char* s, size_t len) {
-    /* ... */
+	int i;
+	PUTC(c, '\"');
+	for(i = 0; i < len; i++) {
+		switch(s[i]) {
+			case '\"':
+				PUTS(c, "\\\"", 2);
+				break;
+			case '\\':
+				PUTS(c, "\\\\", 2);
+				break;
+			case '\b':
+				PUTS(c, "\\b", 2);
+				break;
+			case '\f':
+				PUTS(c, "\\f", 2);
+				break;
+			case '\n':
+				PUTS(c, "\\n", 2);
+				break;
+			case '\r':
+				PUTS(c, "\\r", 2);
+				break;
+			case '\t':
+				PUTS(c, "\\t", 2);
+				break;
+			default:
+				if(s[i] < 0X20) {
+					char buffer[7];
+					sprintf(buffer, "\\u%04X", s[i]);
+					PUTS(c, buffer, 6);
+				}else{
+					PUTC(c, s[i]);
+				}
+		}
+	}
+	PUTC(c, '\"');
+}
+
+static void lept_stringify_value(lept_context* c, const lept_value* v); 
+
+static void lept_stringify_array(lept_context* c, const lept_value* e, size_t size) {
+	int i;
+	PUTC(c, '[');
+	for(i = 0; i < size; i++) {
+		lept_stringify_value(c, e+i);
+		if(i!=size-1)	PUTC(c, ',');
+	}
+	PUTC(c, ']');
+}
+
+static void lept_stringify_object(lept_context* c, const lept_member* m, size_t size) {
+	int i;
+	const lept_member* cur_m;
+	PUTC(c, '{');
+	for(i = 0; i < size; i++) {
+		cur_m = m+i;
+		lept_stringify_string(c, cur_m->k, cur_m->klen);
+		PUTC(c, ':');
+		lept_stringify_value(c, &(cur_m->v));
+		if(i!=size-1)	PUTC(c, ',');
+	}
+	PUTC(c, '}');
 }
 
 static void lept_stringify_value(lept_context* c, const lept_value* v) {
@@ -358,10 +419,10 @@ static void lept_stringify_value(lept_context* c, const lept_value* v) {
         case LEPT_NUMBER: c->top -= 32 - sprintf(lept_context_push(c, 32), "%.17g", v->u.n); break;
         case LEPT_STRING: lept_stringify_string(c, v->u.s.s, v->u.s.len); break;
         case LEPT_ARRAY:
-            /* ... */
+			lept_stringify_array(c, v->u.a.e, v->u.a.size);
             break;
         case LEPT_OBJECT:
-            /* ... */
+            lept_stringify_object(c, v->u.o.m, v->u.o.size);
             break;
         default: assert(0 && "invalid type");
     }
