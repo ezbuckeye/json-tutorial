@@ -623,7 +623,11 @@ lept_value* lept_insert_array_element(lept_value* v, size_t index) {
 
 void lept_erase_array_element(lept_value* v, size_t index, size_t count) {
     assert(v != NULL && v->type == LEPT_ARRAY && index + count <= v->u.a.size);
-    /* \todo */
+	size_t i;
+	for(i=index+count; i<=v->u.a.size; i++) {
+		lept_swap(&v->u.a.e[i-count], &v->u.a.e[i]);
+	}
+	v->u.a.size -= count;
 }
 
 void lept_set_object(lept_value* v, size_t capacity) {
@@ -688,7 +692,7 @@ size_t lept_find_object_index(const lept_value* v, const char* key, size_t klen)
     return LEPT_KEY_NOT_EXIST;
 }
 
-lept_value* lept_find_object_value(lept_value* v, const char* key, size_t klen) {
+lept_value* lept_find_object_value(const lept_value* v, const char* key, size_t klen) {
     size_t index = lept_find_object_index(v, key, klen);
     return index != LEPT_KEY_NOT_EXIST ? &v->u.o.m[index].v : NULL;
 }
