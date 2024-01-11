@@ -616,14 +616,19 @@ void lept_popback_array_element(lept_value* v) {
 }
 
 lept_value* lept_insert_array_element(lept_value* v, size_t index) {
+	size_t i;
     assert(v != NULL && v->type == LEPT_ARRAY && index <= v->u.a.size);
-    /* \todo */
-    return NULL;
+	lept_pushback_array_element(v);
+	/* size_t is an unsigend int */
+	for(i=v->u.a.size-1; i!=index-1; i--) {
+		lept_move(&v->u.a.e[i+1], &v->u.a.e[i]);
+	}
+    return &v->u.a.e[index];
 }
 
 void lept_erase_array_element(lept_value* v, size_t index, size_t count) {
-    assert(v != NULL && v->type == LEPT_ARRAY && index + count <= v->u.a.size);
 	size_t i;
+    assert(v != NULL && v->type == LEPT_ARRAY && index + count <= v->u.a.size);
 	for(i=index+count; i<=v->u.a.size; i++) {
 		lept_swap(&v->u.a.e[i-count], &v->u.a.e[i]);
 	}
