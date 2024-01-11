@@ -499,7 +499,16 @@ int lept_is_equal(const lept_value* lhs, const lept_value* rhs) {
                     return 0;
             return 1;
         case LEPT_OBJECT:
-            /* \todo */
+			if (lhs->u.o.size != rhs->u.o.size)
+				return 0;
+			for (i = 0; i < lhs->u.o.size; i++) {
+				lept_value* r_value;
+				lept_member l = lhs->u.o.m[i];
+				if ((r_value=lept_find_object_value(rhs, l.k, l.klen)) == NULL) 
+					return 0;
+				if (&l.v==NULL || !lept_is_equal(&l.v, r_value)) 
+					return 0;
+			}
             return 1;
         default:
             return 1;
