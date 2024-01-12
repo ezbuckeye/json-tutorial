@@ -554,7 +554,6 @@ static void test_access_array() {
     size_t i, j;
 
     lept_init(&a);
-
     for (j = 0; j <= 5; j += 5) {
         lept_set_array(&a, j);
         EXPECT_EQ_SIZE_T(0, lept_get_array_size(&a));
@@ -565,43 +564,35 @@ static void test_access_array() {
             lept_move(lept_pushback_array_element(&a), &e);
             lept_free(&e);
         }
-
         EXPECT_EQ_SIZE_T(10, lept_get_array_size(&a));
         for (i = 0; i < 10; i++)
             EXPECT_EQ_DOUBLE((double)i, lept_get_number(lept_get_array_element(&a, i)));
     }
-
     lept_popback_array_element(&a);
     EXPECT_EQ_SIZE_T(9, lept_get_array_size(&a));
     for (i = 0; i < 9; i++)
         EXPECT_EQ_DOUBLE((double)i, lept_get_number(lept_get_array_element(&a, i)));
-
     lept_erase_array_element(&a, 4, 0);
     EXPECT_EQ_SIZE_T(9, lept_get_array_size(&a));
     for (i = 0; i < 9; i++)
         EXPECT_EQ_DOUBLE((double)i, lept_get_number(lept_get_array_element(&a, i)));
-
     lept_erase_array_element(&a, 8, 1);
     EXPECT_EQ_SIZE_T(8, lept_get_array_size(&a));
     for (i = 0; i < 8; i++)
         EXPECT_EQ_DOUBLE((double)i, lept_get_number(lept_get_array_element(&a, i)));
-
     lept_erase_array_element(&a, 0, 2);
     EXPECT_EQ_SIZE_T(6, lept_get_array_size(&a));
     for (i = 0; i < 6; i++)
         EXPECT_EQ_DOUBLE((double)i + 2, lept_get_number(lept_get_array_element(&a, i)));
-
     for (i = 0; i < 2; i++) {
         lept_init(&e);
         lept_set_number(&e, i);
         lept_move(lept_insert_array_element(&a, i), &e);
         lept_free(&e);
     }
-    
     EXPECT_EQ_SIZE_T(8, lept_get_array_size(&a));
     for (i = 0; i < 8; i++)
         EXPECT_EQ_DOUBLE((double)i, lept_get_number(lept_get_array_element(&a, i)));
-
     EXPECT_TRUE(lept_get_array_capacity(&a) > 8);
     lept_shrink_array(&a);
     EXPECT_EQ_SIZE_T(8, lept_get_array_capacity(&a));
@@ -610,13 +601,13 @@ static void test_access_array() {
         EXPECT_EQ_DOUBLE((double)i, lept_get_number(lept_get_array_element(&a, i)));
 
     lept_set_string(&e, "Hello", 5);
-    lept_move(lept_pushback_array_element(&a), &e);     /* Test if element is freed */
+    lept_move(lept_pushback_array_element(&a), &e);    
     lept_free(&e);
 
     i = lept_get_array_capacity(&a);
     lept_clear_array(&a);
     EXPECT_EQ_SIZE_T(0, lept_get_array_size(&a));
-    EXPECT_EQ_SIZE_T(i, lept_get_array_capacity(&a));   /* capacity remains unchanged */
+    EXPECT_EQ_SIZE_T(i, lept_get_array_capacity(&a));   
     lept_shrink_array(&a);
     EXPECT_EQ_SIZE_T(0, lept_get_array_capacity(&a));
 
@@ -624,7 +615,6 @@ static void test_access_array() {
 }
 
 static void test_access_object() {
-#if 0
     lept_value o, v, *pv;
     size_t i, j, index;
 
@@ -642,6 +632,7 @@ static void test_access_object() {
             lept_move(lept_set_object_value(&o, key, 1), &v);
             lept_free(&v);
         }
+
         EXPECT_EQ_SIZE_T(10, lept_get_object_size(&o));
         for (i = 0; i < 10; i++) {
             char key[] = "a";
@@ -652,7 +643,6 @@ static void test_access_object() {
             EXPECT_EQ_DOUBLE((double)i, lept_get_number(pv));
         }
     }
-
     index = lept_find_object_index(&o, "j", 1);    
     EXPECT_TRUE(index != LEPT_KEY_NOT_EXIST);
     lept_remove_object_value(&o, index);
@@ -678,22 +668,18 @@ static void test_access_object() {
     }
 
     lept_set_string(&v, "Hello", 5);
-    lept_move(lept_set_object_value(&o, "World", 5), &v); /* Test if element is freed */
+    lept_move(lept_set_object_value(&o, "World", 5), &v); 
     lept_free(&v);
-
     pv = lept_find_object_value(&o, "World", 5);
     EXPECT_TRUE(pv != NULL);
     EXPECT_EQ_STRING("Hello", lept_get_string(pv), lept_get_string_length(pv));
-
     i = lept_get_object_capacity(&o);
     lept_clear_object(&o);
     EXPECT_EQ_SIZE_T(0, lept_get_object_size(&o));
-    EXPECT_EQ_SIZE_T(i, lept_get_object_capacity(&o)); /* capacity remains unchanged */
+    EXPECT_EQ_SIZE_T(i, lept_get_object_capacity(&o)); 
     lept_shrink_object(&o);
     EXPECT_EQ_SIZE_T(0, lept_get_object_capacity(&o));
-
     lept_free(&o);
-#endif
 }
 
 static void test_access() {
