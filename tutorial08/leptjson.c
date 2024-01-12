@@ -506,7 +506,7 @@ int lept_is_equal(const lept_value* lhs, const lept_value* rhs) {
 				lept_member l = lhs->u.o.m[i];
 				if ((r_value=lept_find_object_value(rhs, l.k, l.klen)) == NULL) 
 					return 0;
-				if (&l.v==NULL || !lept_is_equal(&l.v, r_value)) 
+				if (!lept_is_equal(&l.v, r_value)) 
 					return 0;
 			}
             return 1;
