@@ -416,16 +416,41 @@ char* lept_stringify(const lept_value* v, size_t* length) {
 }
 
 void lept_copy(lept_value* dst, const lept_value* src) {
+	size_t i;
     assert(src != NULL && dst != NULL && src != dst);
     switch (src->type) {
         case LEPT_STRING:
             lept_set_string(dst, src->u.s.s, src->u.s.len);
             break;
         case LEPT_ARRAY:
-            /* \todo */
+			/* copy capacity and initialize the memory */
+			lept_set_array(dst, src->u.a.capacity);
+			/* copy e */
+			for(i = 0; i < src->u.o.size; i++) {
+				lept_copy(&dst->u.a.e[i], &src->u.a.e[i]);
+			}
+			/* copy size */
+			dst->u.a.size = src->u.a.size;
             break;
         case LEPT_OBJECT:
-            /* \todo */
+			/* copy capcity and initialize the memory */
+			lept_set_object(dst, src->u.o.capacity);
+			/* copy member*/
+			for(i = 0; i < src->u.o.size; i++) {
+				lept_member* cur_m_src = &src->u.o.m[i];	
+				lept_member* cur_m_dst = &dst->u.o.m[i];
+				size_t src_klen = cur_m_src->klen;
+				/* copy k */
+				cur_m_dst->k = (char*)malloc(src_klen+1);
+				memcpy(cur_m_dst->k, cur_m_src->k, src_klen);
+				cur_m_dst->k[src_klen] = '\0';
+				/* copy klen */
+				cur_m_dst->klen = src_klen;
+				/* copy v */
+				lept_copy(&cur_m_dst->v, &cur_m_src->v);
+			}
+			/* copy size */
+			dst->u.o.size = src->u.o.size;
             break;
         default:
             lept_free(dst);
