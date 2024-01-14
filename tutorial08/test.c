@@ -472,7 +472,6 @@ static void test_equal() {
 }
 
 static void test_copy() {
-	/*
     lept_value v1, v2;
     lept_init(&v1);
     lept_parse(&v1, "{\"t\":true,\"f\":false,\"n\":null,\"d\":1.5,\"a\":[1,2,3]}");
@@ -481,7 +480,6 @@ static void test_copy() {
     EXPECT_TRUE(lept_is_equal(&v2, &v1));
     lept_free(&v1);
     lept_free(&v2);
-	*/
 }
 
 static void test_move() {
